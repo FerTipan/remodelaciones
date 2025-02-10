@@ -1,0 +1,120 @@
+{% extends "plantilla.html" %}
+{% load static %}
+
+{% block body %}
+  <h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light">Remodelaciones /</span> Propietarios
+  </h4>
+  <div class="col-xxl">
+    <div class="card mb-4">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="mb-0">Datos de los propietarios</h5>
+        <small class="text-muted float-end">Propietarios</small>
+      </div>
+      <div class="card-body">
+        <form id="frm-prop" method="post" action="{% url 'nuevo_propietario' %}">
+          {% csrf_token %}
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="nombre">Nombre</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-user"></i></span>
+                <input
+                  type="text" class="form-control" id="nombre" name="nombre"
+                  placeholder="Ej: Dani Duran" required
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Teléfono -->
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="telefono">Teléfono</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-phone"></i></span>
+                <input
+                  type="tel" id="telefono" name="telefono" class="form-control"
+                  placeholder="Ej: 0987654321" required
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="email">Email</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-envelope"></i></span>
+                <input
+                  type="email" id="email" name="email" class="form-control"
+                  placeholder="ejemplo@email.com" required
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row justify-content-end">
+            <div class="col-sm-10">
+              <button type="submit" class="btn btn-primary">Agregar</button>
+              <a href="{% url 'lista_propietario' %}" class="btn btn-danger">Cancelar</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+      $("#frm-prop").validate({
+        rules: {
+          nombre: {
+            required: true,
+            minlength: 3,
+            lettersonly: true
+          },
+          telefono: {
+            required: true,
+            digits: true,
+            minlength: 7,
+            maxlength: 15,
+            min: 0
+          },
+          email: {
+            required: true,
+            email: true
+          }
+        },
+        messages: {
+          nombre: {
+            required: "Por favor, ingresa un nombre.",
+            minlength: "El nombre debe tener al menos 3 caracteres.",
+            lettersonly: "Solo se permiten letras y espacios."
+          },
+          telefono: {
+            required: "Por favor, ingresa un número de teléfono.",
+            digits: "Solo se permiten números.",
+            minlength: "El número debe tener al menos 7 dígitos.",
+            maxlength: "El número no puede tener más de 15 dígitos.",
+            min: "El existe un número de teléfono negativo."
+
+          },
+          email: {
+            required: "Por favor, ingresa un correo electrónico.",
+            email: "Ingresa un correo válido."
+          }
+        },
+        errorPlacement: function (error, element) {
+        error.addClass("text-danger");
+        element.closest(".input-group").after(error);
+        },
+        highlight: function (element) {
+          $(element).addClass("is-invalid");
+        },
+        unhighlight: function (element) {
+          $(element).removeClass("is-invalid");
+        }
+      });
+      $.validator.addMethod("lettersonly", function (value, element) {
+          return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
+      }, "Solo se permiten letras y espacios.");
+  </script>
+{% endblock %}

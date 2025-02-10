@@ -1,0 +1,81 @@
+{% extends "plantilla.html" %}
+{% load static %}
+
+{% block body %}
+<h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Remodelaciones /</span>Listado de Reformas</h4>
+<div class="card">
+  <div class="row">
+    <div class="col-md-10">  
+      <h5 class="card-header">Reformas</h5>
+    </div>
+    <div class="col-md-2">
+      <a class="btn btn-get-started  my-3 text-center justify-content-end" href="{% url 'nueva_reforma' %}"><i class="bx bx-plus"></i>Agregar</a>
+    </div>
+  </div>
+  <div class="table-responsive text-nowrap">
+    <table id="tbl-ref" class="table table-hover">
+      <thead class="bg-primary">
+        <tr>
+          <th class="text-white">ID</th>
+          <th class="text-white">Inmueble</th>
+          <th class="text-white">Descripción</th>
+          <th class="text-white">Fecha Inicio</th>
+          <th class="text-white">Fecha Fin</th>
+          <th class="text-white">Estado</th>
+          <th class="text-white">Costo Estimado</th>
+          <th class="text-white">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+        {% for reforma in reformas %}
+        <tr>
+          <td class="border-bottom-0"><h6 class="mb-0">{{ reforma.id }}</h6></td>
+          <td class="border-bottom-0"><h6 class="mb-0">{{ reforma.inmueble }}</h6></td>
+          <td class="border-bottom-0"><h6 class="mb-0">{{ reforma.descripcion }}</h6></td>
+          <td class="border-bottom-0"><h6 class="mb-0">{{ reforma.fecha_inicio }}</h6></td>
+          <td class="border-bottom-0"><h6 class="mb-0">{{ reforma.fecha_fin }}</h6></td>
+          <td class="border-bottom-0"><h6 class="mb-0">{{ reforma.estado }}</h6></td>
+          <td class="border-bottom-0"><h6 class="mb-0">{{ reforma.costo_estimado }}</h6></td>
+
+
+          <td class="d-flex align-items-center">
+            <a href="{% url 'editar_reforma' reforma.id %}" class="btn btn-primary btn-sm d-flex align-items-center mx-1">
+              <i class="bx bx-edit-alt me-1"></i> Editar
+            </a>
+        
+            <form id="form-eliminar-{{ reforma.id }}" method="POST" action="{% url 'eliminar_reforma' reforma.id %}" class="d-inline">
+              {% csrf_token %}
+            </form>
+            <button onclick="confirmarEliminacion('form-eliminar-{{ reforma.id }}')" class="btn btn-danger btn-sm d-flex align-items-center mx-1">
+              <i class="bx bx-trash me-1"></i> Eliminar
+            </button>
+        </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center">No se encontraron reformas.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let table = new DataTable('#tbl-ref', {
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
+      },
+      dom:'Bfrtip',
+      buttons: [
+        'copy', 'csv', 'excel', 'pdf', 'print'
+      ],
+      initComplete: function () {
+        $('.dataTables_filter input').addClass('form-control').attr('placeholder', 'Filtrar...');
+      }
+    });
+  }); 
+</script>
+
+{% endblock %}

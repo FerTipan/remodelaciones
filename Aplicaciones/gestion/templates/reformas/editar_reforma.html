@@ -1,0 +1,200 @@
+{% extends "plantilla.html" %}
+{% load static %}
+
+{% block body %}
+  <h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light">Remodelaciones /</span> Editar Reforma
+  </h4>
+  <div class="col-xxl">
+    <div class="card mb-4">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="mb-0">Editar Datos</h5>
+        <small class="text-muted float-end">Reforma</small>
+      </div>
+      <div class="card-body">
+        <form id="frm-edit-ref" method="post" action="" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- Inmueble -->
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="inmueble">Inmueble</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-home"></i></span>
+                <select class="form-control select2 mx-1" name="inmueble" id="inmueble" required>
+                  <option value="" disabled {% if not reforma %}selected{% endif %}>--- Seleccione un inmueble ---</option>
+                  {% for inmueble in inmuebles %}
+                  <option value="{{ inmueble.id }}" {% if reforma and reforma.inmueble.id == inmueble.id %}selected{% endif %}>
+                    {{ inmueble.direccion }} - {{ inmueble.propietario.nombre }}</option>
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descripción -->
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="descripcion">Descripción</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-edit-alt"></i></span>
+                <textarea name="descripcion" id="descripcion" class="form-control" required>{{ reforma.descripcion }}</textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fecha de Inicio -->
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="fecha_inicio">Fecha de Inicio</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-calendar"></i></span>
+                <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="{{ reforma.fecha_inicio|date:'Y-m-d' }}" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- Fecha Fin -->
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="fecha_fin">Fecha Fin</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-calendar"></i></span>
+                <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ reforma.fecha_fin|date:'Y-m-d' }}" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- Estado -->
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="estado">Estado</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-info-circle"></i></span>
+                <select class="form-control" name="estado" id="estado" required>
+                  <option value="" disabled>-- Seleccione el estado --</option>
+                  <option value="Pendiente" {% if reforma.estado == "Pendiente" %}selected{% endif %}>Pendiente</option>
+                  <option value="En Progreso" {% if reforma.estado == "En Progreso" %}selected{% endif %}>En Progreso</option>
+                  <option value="Finalizado" {% if reforma.estado == "Finalizado" %}selected{% endif %}>Finalizado</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Costo Estimado -->
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="costo_estimado">Costo Estimado</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-money"></i></span>
+                <input type="text" id="costo_estimado" name="costo_estimado" class="form-control"
+                  value="{{ reforma.costo_estimado|default_if_none:''|floatformat:2 }}" 
+                  step="0.01" required />
+              </div>
+            </div>
+          </div>
+          <div class="row justify-content-end">
+            <div class="col-sm-10">
+              <button type="submit" class="btn btn-primary">Actualizar</button>
+              <a href="{% url 'lista_reforma' %}" class="btn btn-danger">Cancelar</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById("frm-edit-ref").addEventListener("submit", function() {
+        let costoInput = document.getElementById("costo_estimado");
+        costoInput.value = costoInput.value.replace(",", ".");
+    });
+    </script>
+    
+  <script>
+    $('.select2').select2({
+        placeholder: "Seleccione un inmueble",
+        allowClear: true
+    });
+  </script>
+  <script>
+    $("#frm-edit-ref").validate({
+      rules: {
+        inmueble: {
+          required: true
+        },
+        descripcion: {
+          required: true,
+          minlength: 10
+        },
+        fecha_inicio: {
+          required: true,
+          date: true
+        },
+        fecha_fin: {
+          required: true,
+          date: true,
+          greaterThan: "#fecha_inicio"
+        },
+        estado: {
+          required: true
+        },
+        costo_estimado: {
+          required: true,
+          number: true,
+          min: 0.01,
+          regex: /^\d+(\.\d{1,2})?$/  // Máximo 2 decimales
+        }
+      },
+      messages: {
+        inmueble: {
+            required: "Seleccione un inmueble."
+        },
+        descripcion: {
+            required: "Ingrese una descripción.",
+            minlength: "Debe tener al menos 10 caracteres."
+        },
+        fecha_inicio: {
+            required: "Seleccione la fecha de inicio.",
+            date: "Ingrese una fecha válida."
+        },
+        fecha_fin: {
+            required: "Seleccione la fecha de finalización.",
+            date: "Ingrese una fecha válida.",
+            greaterThan: "La fecha de finalización debe ser posterior a la de inicio."
+        },
+        estado: {
+            required: "Seleccione el estado."
+        },
+        costo_estimado: {
+            required: "Ingrese un costo estimado.",
+            number: "Solo números.",
+            min: "El costo debe ser mayor a 0.",
+            regex: "Solo se permiten hasta 2 decimales."
+        }
+      },
+      errorPlacement: function (error, element) {
+          error.addClass("text-danger");
+          element.closest(".input-group").after(error);
+      },
+      highlight: function (element) {
+          $(element).addClass("is-invalid");
+      },
+      unhighlight: function (element) {
+          $(element).removeClass("is-invalid");
+      }
+    });
+
+    // Método para validar que fecha_fin sea mayor a fecha_inicio
+    $.validator.addMethod("greaterThan", function (value, element, param) {
+      let startDate = $(param).val();
+      return startDate ? new Date(value) > new Date(startDate) : true;
+    }, "La fecha de finalización debe ser posterior a la de inicio.");
+
+    // Método para validar hasta 2 decimales
+    $.validator.addMethod("regex", function (value, element, param) {
+      return this.optional(element) || param.test(value);
+    }, "Formato inválido.");
+
+  </script>
+{% endblock %}

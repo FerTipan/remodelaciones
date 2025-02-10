@@ -1,0 +1,184 @@
+{% extends "plantilla.html" %}
+{% load static %}
+
+{% block body %}
+  <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Remodelaciones /</span>Reforma</h4>
+  <div class="col-xxl">
+    <div class="card mb-4">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="mb-0">Datos</h5>
+        <small class="text-muted float-end">Reforma</small>
+      </div>
+      <div class="card-body">
+        <form id="frm-nueva-ref" method="post" action="{% url 'nueva_reforma' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="inmueble">Inmmueble</label>
+            <div class="col-sm-10">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bx bx-user"></i></span>
+                    <select class="form-control select2 mx-1" name="inmueble" id="inmueble" required>
+                        <option value="" selected disabled> -- Seleccione el inmueble -- </option>
+                        {% for inmueble in inmuebles %}
+                          <option value="{{ inmueble.id }}">{{ inmueble.direccion }}&nbsp;{{ inmueble.propietario.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="descripcion">Descripción</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span id="descripcion" class="input-group-text"><i class="bx bx-edit-alt"></i></span>
+                <textarea name="descripcion" id="descripcion" class="form-control"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="fecha_inicio">Fecha de Inicio</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-calendar-event"></i></span>
+                <input type="date" id="fecha_inicio" name="fecha_inicio"
+                  class="form-control" 
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="fecha_fin">Fecha Fin</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-calendar-event"></i></span>
+                <input type="date" id="fecha_fin" name="fecha_fin"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="estado">Estado</label>
+            <div class="col-sm-10">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bx bx-user"></i></span>
+                    <select class="form-control" name="estado" id="estado" required>
+                        <option value="" selected disabled> -- Seleccione el estado -- </option>
+                        <option value="Pendiente">Pendiente </option>
+                        <option value="En Progreso">En Progreso </option>
+                        <option value="Finalizado">Finalizado </option>
+                    </select>
+                </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="costo_estimado">Costo Estimado</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-money"></i></span>
+                <input type="number"
+                  id="costo_estimado" name="costo_estimado"
+                  class="form-control"
+                  placeholder="Ingrese el valor"
+                  aria-describedby="costo"/>
+              </div>
+            </div>
+          </div>
+          <div class="row justify-content-end">
+            <div class="col-sm-10">
+              <button type="submit" class="btn btn-primary">Agregar</button>
+              <a href="{% url 'lista_reforma' %}" class="btn btn-danger">Cancelar</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    $('.select2').select2({
+        placeholder: "Seleccione un inmueble",
+        allowClear: true
+    });
+  </script>
+  <script>
+    $("#frm-nueva-ref").validate({
+      rules: {
+        inmueble: {
+          required: true
+        },
+        descripcion: {
+          required: true,
+          minlength: 10
+        },
+        fecha_inicio: {
+          required: true,
+          date: true
+        },
+        fecha_fin: {
+          required: true,
+          date: true,
+          greaterThan: "#fecha_inicio"
+        },
+        estado: {
+          required: true
+        },
+        costo_estimado: {
+          required: true,
+          number: true,
+          min: 0.01,
+          regex: /^\d+(\.\d{1,2})?$/  // Máximo 2 decimales
+        }
+      },
+      messages: {
+        inmueble: {
+            required: "Seleccione un inmueble."
+        },
+        descripcion: {
+            required: "Ingrese una descripción.",
+            minlength: "Debe tener al menos 10 caracteres."
+        },
+        fecha_inicio: {
+            required: "Seleccione la fecha de inicio.",
+            date: "Ingrese una fecha válida."
+        },
+        fecha_fin: {
+            required: "Seleccione la fecha de finalización.",
+            date: "Ingrese una fecha válida.",
+            greaterThan: "La fecha de finalización debe ser posterior a la de inicio."
+        },
+        estado: {
+            required: "Seleccione el estado."
+        },
+        costo_estimado: {
+            required: "Ingrese un costo estimado.",
+            number: "Solo números.",
+            min: "El costo debe ser mayor a 0.",
+            regex: "Solo se permiten hasta 2 decimales."
+        }
+      },
+      errorPlacement: function (error, element) {
+          error.addClass("text-danger");
+          element.closest(".input-group").after(error);
+      },
+      highlight: function (element) {
+          $(element).addClass("is-invalid");
+      },
+      unhighlight: function (element) {
+          $(element).removeClass("is-invalid");
+      }
+    });
+
+    // Método para validar que fecha_fin sea mayor a fecha_inicio
+    $.validator.addMethod("greaterThan", function (value, element, param) {
+      let startDate = $(param).val();
+      return startDate ? new Date(value) > new Date(startDate) : true;
+    }, "La fecha de finalización debe ser posterior a la de inicio.");
+
+    // Método para validar hasta 2 decimales
+    $.validator.addMethod("regex", function (value, element, param) {
+      return this.optional(element) || param.test(value);
+    }, "Formato inválido.");
+
+    </script>
+{% endblock %}

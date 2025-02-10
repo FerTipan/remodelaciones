@@ -1,0 +1,78 @@
+{% extends "plantilla.html" %}
+{% load static %}
+
+{% block body %}
+<h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Remodelaciones /</span>Listado de Cotizaciones</h4>
+<div class="card">
+  <div class="row">
+    <div class="col-md-10">  
+      <h5 class="card-header">Cotizaciones</h5>
+    </div>
+    <div class="col-md-2">
+      <a class="btn btn-get-started  my-3 text-center justify-content-end" href="{% url 'nueva_cotizacion' %}"><i class="bx bx-plus"></i>Agregar</a>
+    </div>
+  </div>
+  <div class="table-responsive text-nowrap">
+    <table id="tbl-cot" class="table table-hover">
+      <thead class="bg-primary">
+        <tr>
+          <th class="text-white">Reforma</th>
+          <th class="text-white">Proveedor</th>
+          <th class="text-white">Monto</th>
+          <th class="text-white">Aceptada</th>
+          <th class="text-white">Fecha</th>
+
+          <th class="text-white">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+        {% for cotizacion in cotizaciones %}
+        <tr>
+          <td class="border-bottom-0"><h6 class="mb-0">{{ cotizacion.reforma.inmueble }}</h6></td>
+          <td class="border-bottom-0"><h6 class="mb-0">{{ cotizacion.proveedor }}</h6></td>
+          <td class="border-bottom-0"><h6 class="mb-0">{{ cotizacion.monto }}</h6></td>
+          <td class="border-bottom-0"><h6 class="mb-0">{{ cotizacion.aceptada|yesno:"Sí,No" }}</h6></td>
+          <td class="border-bottom-0"><h6 class="mb-0">{{ cotizacion.fecha }}</h6></td>
+
+
+          <td class="d-flex align-items-center">
+            <a href="{% url 'editar_cotizacion' cotizacion.id %}" class="btn btn-primary btn-sm d-flex align-items-center mx-1">
+              <i class="bx bx-edit-alt me-1"></i> Editar
+            </a>
+        
+            <form id="form-eliminar-{{ cotizacion.id }}" method="POST" action="{% url 'eliminar_cotizacion' cotizacion.id %}" class="d-inline">
+              {% csrf_token %}
+            </form>
+            <button onclick="confirmarEliminacion('form-eliminar-{{ cotizacion.id }}')" class="btn btn-danger btn-sm d-flex align-items-center mx-1">
+              <i class="bx bx-trash me-1"></i> Eliminar
+            </button>
+        </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center">No se encontraron cotizaciones.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let table = new DataTable('#tbl-cot', {
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
+      },
+      dom:'Bfrtip',
+      buttons: [
+        'copy', 'csv', 'excel', 'pdf', 'print'
+      ],
+      initComplete: function () {
+        $('.dataTables_filter input').addClass('form-control').attr('placeholder', 'Filtrar...');
+      }
+    });
+  }); 
+</script>
+
+{% endblock %}

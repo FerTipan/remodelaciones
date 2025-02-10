@@ -1,0 +1,152 @@
+{% extends "plantilla.html" %}
+{% load static %}
+
+{% block body %}
+  <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Remodelaciones /</span>Cotizaciones</h4>
+  <div class="col-xxl">
+    <div class="card mb-4">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="mb-0">Datos</h5>
+        <small class="text-muted float-end">Cotizaciones</small>
+      </div>
+      <div class="card-body">
+        <form id="frm-cotizacion" method="post" action="{% url 'nueva_cotizacion' %}">
+          {% csrf_token %}
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="reforma">Reforma</label>
+            <div class="col-sm-10">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bx bx-file"></i></span>
+                    <select class="form-control select2" name="reforma" id="reforma">
+                        <option value="" selected disabled> -- Seleccione la reforma -- </option>
+                        {% for reforma in reformas %}
+                          <option value="{{ reforma.id }}">{{ reforma.descripcion }} - {{ reforma.inmueble.propietario.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="proveedor">Proveedor</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-user"></i></span>
+                <input
+                  type="text" class="form-control" id="proveedor" name="proveedor"
+                  placeholder="Ej: Fer Duran"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="monto">Monto Estimado</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-money"></i></span>
+                <input type="number"
+                  id="monto" name="monto"
+                  class="form-control"
+                  placeholder="Ingrese el valor"
+                  aria-describedby="costo"/>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="fecha">Fecha</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bx bx-calendar-event"></i></span>
+                <input type="date" id="fecha" name="fecha"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="aceptada">Aceptada</label>
+            <div class="col-sm-10">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bx bx-check"></i></span>
+                    &nbsp;<input type="checkbox"
+                    id="aceptada" name="aceptada"
+                    />
+                </div>
+            </div>
+          </div>
+          
+          <div class="row justify-content-end">
+            <div class="col-sm-10">
+              <button type="submit" class="btn btn-primary">Agregar</button>
+              <a href="{% url 'listado_cotizacion' %}" class="btn btn-danger">Cancelar</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    $('.select2').select2({
+        placeholder: "Seleccione un propietario",
+        allowClear: true
+    });
+  </script>
+  //
+  <script>
+    $("#frm-cotizacion").validate({
+        rules: {
+          reforma: {
+              required: true
+          },
+          proveedor: {
+              required: true,
+              minlength: 3,
+              lettersonly: true
+          },
+          monto: {
+              required: true,
+              number: true,
+              min: 0
+          },
+          fecha: {
+              required: true,
+              date: true
+          }
+        },
+        messages: {
+          reforma: {
+            required: "Seleccione una reforma."
+          },
+          proveedor: {
+              required: "Ingrese el nombre del proveedor.",
+              minlength: "Debe tener al menos 3 caracteres.",
+              lettersonly: "Solo se permiten letras y espacios."
+          },
+          monto: {
+              required: "Ingrese el monto estimado.",
+              number: "Ingrese un número válido.",
+              min: "El monto no puede ser negativo."
+          },
+          fecha: {
+              required: "Seleccione una fecha.",
+              date: "Ingrese una fecha válida."
+          }
+        },
+        errorPlacement: function (error, element) {
+          error.addClass("text-danger");
+          element.closest(".input-group").after(error);
+        },
+        highlight: function (element) {
+            $(element).addClass("is-invalid");
+        },
+        unhighlight: function (element) {
+            $(element).removeClass("is-invalid");
+        }
+    });
+
+    // Método para validar solo letras y espacios
+    $.validator.addMethod("lettersonly", function (value, element) {
+        return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
+    }, "Solo se permiten letras y espacios.");
+  </script>
+{% endblock %}
